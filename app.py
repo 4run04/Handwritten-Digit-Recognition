@@ -37,7 +37,7 @@ if uploaded_model:
         os.remove(temp_model_path)
 
     except Exception as e:
-        st.error(f"Error loading the uploaded model: {e}")
+        st.error(f"Error loading the uploaded model (please refresh): {e}")
         st.stop()
 
 # Ensure a model is loaded
