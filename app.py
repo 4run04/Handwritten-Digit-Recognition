@@ -12,14 +12,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 st.title("Handwritten Digit Recognition")
 st.write("Draw a digit (0-9) in the box below and click 'Predict' to see the result.")
 
-# Load default model
-model = None
-try:
-    model = load_model("mnist_cnn_model.h5")
-    st.success("Default model loaded successfully!")
-except Exception as e:
-    st.error(f"Error loading the default model: {e}")
-
+model = load_model("mnist_cnn_model.h5")
 # Allow user to upload a custom model
 uploaded_model = st.file_uploader("Upload your model (.h5 file)", type=["h5"])
 if uploaded_model:
