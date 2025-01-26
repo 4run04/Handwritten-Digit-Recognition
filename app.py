@@ -1,82 +1,85 @@
-import os
 import streamlit as st
 import numpy as np
-from tensorflow.keras.models import load_model
+import pickle
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 
-# Disable GPU if you're facing GPU-related issues
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# Load the pre-trained Random Forest model
+with open("mnist_rf_model.pkl", "rb") as f:
+    rf_model = pickle.load(f)
 
-# App title
-st.title("Handwritten Digit Recognition")
-st.write("Draw a digit (0-9) in the box below and click 'Predict' to see the result.")
+# Load the pre-trained CNN model with data augmentation
+with open("mnist_cnn_augmented_model.pkl", "rb") as f:
+    cnn_augmented_model = pickle.load(f)
 
-model = load_model("mnist_cnn_model.h5")
-print(model.summary())
-# Allow user to upload a custom model
-uploaded_model = st.file_uploader("Upload your model (.h5 file)", type=["h5"])
-if uploaded_model:
-    try:
-        # Save the uploaded file to a temporary location
-        temp_model_path = "temp_model.h5"
-        with open(temp_model_path, "wb") as f:
-            f.write(uploaded_model.getbuffer())
+# Streamlit app title
+st.title("Handwritten Digit Recognition - Model Comparison")
 
-        # Load the model from the temporary file
-        model = load_model(temp_model_path)
-        st.success("Custom model loaded successfully!")
+# Project description
+st.write("""
+This app uses two pre-trained models (Random Forest and CNN with Data Augmentation) to recognize handwritten digits (0-9). 
+Draw a digit in the canvas below and click 'Predict' to see the results from both models.
+""")
 
-        # Optionally clean up temporary file
-        os.remove(temp_model_path)
-
-    except Exception as e:
-        st.error(f"Error loading the uploaded model (please refresh): {e}")
-        st.stop()
-
-# Ensure a model is loaded
-'''
-if not model:
-    st.error("No model loaded. Please provide a valid model to proceed.")
-    st.stop()
-'''
 # Create a canvas for drawing
 canvas_result = st_canvas(
-    fill_color="black",
-    stroke_width=15,
-    stroke_color="white",
-    background_color="black",
-    width=280,
-    height=280,
-    drawing_mode="freedraw",
+    fill_color="black",  # Background color of the canvas
+    stroke_width=15,     # Thickness of the drawing stroke
+    stroke_color="white",# Color of the drawing stroke
+    background_color="black",  # Canvas background color
+    width=280,           # Canvas width
+    height=280,          # Canvas height
+    drawing_mode="freedraw",  # Allow free drawing
     key="canvas",
 )
 
 # Predict button
 if st.button("Predict"):
-    if canvas_result.image_data is not None and np.sum(canvas_result.image_data) > 0:
+    if canvas_result.image_data is not None:
         # Convert the canvas image to grayscale and resize to 28x28
         img = Image.fromarray(canvas_result.image_data.astype("uint8"))
-        img = img.convert("L")
-        img = img.resize((28, 28))
+        img = img.convert("L")  # Convert to grayscale
+        img = img.resize((28, 28))  # Resize to 28x28 pixels
 
-        # Preprocess the image for the model
+        # Display the processed image
+        st.write("**Processed Image (28x28 Grayscale):**")
+        st.image(img, caption="Processed Image", width=100)
+
+        # Convert the image to a numpy array
         img_array = np.array(img)
-        img_array = img_array.reshape(1, 28, 28, 1) / 255.0
 
-        # Make a prediction
-        prediction = model.predict(img_array)
-        predicted_digit = np.argmax(prediction)
+        # Preprocess the image for Random Forest
+        img_rf = img_array.reshape(1, -1)  # Flatten to (1, 784)
+        img_rf = img_rf / 255.0  # Normalize pixel values
 
-        # Display the prediction
-        st.write(f"Predicted Digit: **{predicted_digit}**")
+        # Preprocess the image for CNN
+        img_cnn = img_array.reshape(1, 28, 28, 1)  # Reshape to (1, 28, 28, 1)
+        img_cnn = img_cnn / 255.0  # Normalize pixel values
 
-        # Display confidence scores automatically
-        confidence_scores = {str(i): round(float(score), 3) for i, score in enumerate(prediction[0])}
-        st.write("Confidence Scores for Each Digit (0-9):")
-        st.write(confidence_scores)
+        # Make predictions using both models
+        rf_prediction = rf_model.predict(img_rf)
+        rf_confidence_scores = rf_model.predict_proba(img_rf)[0]
 
-        # Display the processed image automatically
-        st.image(img, caption="Processed Image (28x28 Grayscale)", width=100)
+        cnn_prediction = cnn_augmented_model.predict(img_cnn)
+        cnn_confidence_scores = cnn_prediction[0]  # CNN outputs probabilities directly
+
+        # Create two columns for side-by-side comparison
+        col1, col2 = st.columns(2)
+
+        # Display Random Forest results in the first column
+        with col1:
+            st.write("### Random Forest Model")
+            st.write(f"**Predicted Digit:** {rf_prediction[0]}")
+            st.write("**Confidence Scores:**")
+            for digit, score in enumerate(rf_confidence_scores):
+                st.write(f"Digit {digit}: {score:.4f}")
+
+        # Display CNN results in the second column
+        with col2:
+            st.write("### CNN Model (with Data Augmentation)")
+            st.write(f"**Predicted Digit:** {np.argmax(cnn_confidence_scores)}")
+            st.write("**Confidence Scores:**")
+            for digit, score in enumerate(cnn_confidence_scores):
+                st.write(f"Digit {digit}: {score:.4f}")
     else:
-        st.warning("Please draw a digit before clicking 'Predict'.")
+        st.write("Please draw a digit before clicking 'Predict'.")
