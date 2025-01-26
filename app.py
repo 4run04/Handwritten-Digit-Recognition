@@ -16,7 +16,7 @@ st.write(f"Does the default model file exist? {'Yes' if os.path.exists('mnist_cn
 # Load the model
 model = None
 try:
-    with open("mnist_cnn_model.pkl", "rb") as file:
+    with open("mnist_cnn_augmented_model.pkl", "rb") as file:
         model = pickle.load(file)
     st.success("Default model loaded successfully!")
 except Exception as e:
