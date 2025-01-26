@@ -5,8 +5,12 @@ from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 
 # Load the pre-trained CNN model with data augmentation
-with open("mnist_cnn_augmented_model.pkl", "rb") as f:
-    cnn_augmented_model = pickle.load(f)
+try:
+    with open("mnist_cnn_augmented_model.pkl", "rb") as f:
+        cnn_augmented_model = pickle.load(f)
+except FileNotFoundError:
+    st.error("Error: Model file 'mnist_cnn_augmented_model.pkl' not found. Please ensure the file exists in the correct directory.")
+    st.stop()
 
 # Streamlit app title
 st.title("Handwritten Digit Recognition - Augmented CNN Model")
