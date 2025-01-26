@@ -33,7 +33,7 @@ if uploaded_model:
         model = load_model(temp_model_path)
         st.success("Custom model loaded successfully!")
 
-        # Optionally clean up temporary file (optional but recommended)
+        # Optionally clean up temporary file
         os.remove(temp_model_path)
 
     except Exception as e:
@@ -76,14 +76,12 @@ if st.button("Predict"):
         # Display the prediction
         st.write(f"Predicted Digit: **{predicted_digit}**")
 
-        # Show confidence scores
-        if st.checkbox("Show Confidence Scores"):
-            confidence_scores = {str(i): round(float(score), 3) for i, score in enumerate(prediction[0])}
-            st.write("Confidence Scores:")
-            st.write(confidence_scores)
+        # Display confidence scores automatically
+        confidence_scores = {str(i): round(float(score), 3) for i, score in enumerate(prediction[0])}
+        st.write("Confidence Scores for Each Digit (0-9):")
+        st.write(confidence_scores)
 
-        # Show the processed image
-        if st.checkbox("Show Processed Image"):
-            st.image(img, caption="Processed Image (28x28 Grayscale)", width=100)
+        # Display the processed image automatically
+        st.image(img, caption="Processed Image (28x28 Grayscale)", width=100)
     else:
         st.warning("Please draw a digit before clicking 'Predict'.")
