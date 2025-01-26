@@ -6,7 +6,7 @@ from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 
 # App title
-st.title("Handwritten Digit Recognition (Pickle Version)")
+st.title("Handwritten Digit Recognition (CNN trained on augmented Mnist dataset)")
 st.write("Draw a digit (0-9) in the box below and click 'Predict' to see the result.")
 
 # Debug
