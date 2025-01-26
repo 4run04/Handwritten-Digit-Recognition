@@ -15,7 +15,7 @@ st.write("Draw a digit (0-9) in the box below and click 'Predict' to see the res
 # Load default model
 model = None
 try:
-    model = load_model("/workspaces/Handwritten-Digit-Recognition/mnist_cnn_model.h5")
+    model = load_model("mnist_cnn_model.h5")
     st.success("Default model loaded successfully!")
 except Exception as e:
     st.error(f"Error loading the default model: {e}")
