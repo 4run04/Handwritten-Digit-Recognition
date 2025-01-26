@@ -19,7 +19,7 @@ try:
         model = pickle.load(file)
     st.success("Default model loaded successfully!")
 except Exception as e:
-    st.error(f"REFRESH THE APP or Continue drawing on canvas: {e}")
+    st.error(f"Draw on the canvas to get prediction REFRESH THE APP if it does'nt work: {e}")
 
 # Create a canvas for drawing
 canvas_result = st_canvas(
