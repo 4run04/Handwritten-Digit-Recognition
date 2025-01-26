@@ -13,6 +13,7 @@ st.title("Handwritten Digit Recognition")
 st.write("Draw a digit (0-9) in the box below and click 'Predict' to see the result.")
 
 model = load_model("mnist_cnn_model.h5")
+print(model.summary())
 # Allow user to upload a custom model
 uploaded_model = st.file_uploader("Upload your model (.h5 file)", type=["h5"])
 if uploaded_model:
@@ -34,10 +35,11 @@ if uploaded_model:
         st.stop()
 
 # Ensure a model is loaded
+'''
 if not model:
     st.error("No model loaded. Please provide a valid model to proceed.")
     st.stop()
-
+'''
 # Create a canvas for drawing
 canvas_result = st_canvas(
     fill_color="black",
