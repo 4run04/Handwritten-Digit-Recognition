@@ -2,6 +2,8 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import pickle
+from sklearn.metrics import classification_report, confusion_matrix
+import numpy as np
 
 # Load the MNIST dataset
 mnist = tf.keras.datasets.mnist
@@ -56,3 +58,14 @@ with open("mnist_cnn_augmented_model.pkl", "wb") as f:
     pickle.dump(model, f)
 
 print("CNN model with data augmentation saved as mnist_cnn_augmented_model.pkl")
+
+y_pred_probs = model.predict(x_test)
+y_pred = np.argmax(y_pred_probs, axis=1)
+
+# Classification report
+print("Classification Report:\n")
+print(classification_report(y_test, y_pred))
+
+# Confusion matrix
+print("Confusion Matrix:\n")
+print(confusion_matrix(y_test, y_pred))
